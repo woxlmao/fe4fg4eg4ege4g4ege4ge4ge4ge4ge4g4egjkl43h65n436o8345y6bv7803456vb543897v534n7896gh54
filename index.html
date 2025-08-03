@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Love Letters</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #121212;
+      --text: #f0f0f0;
+      --card: #1e1e1e;
+      --border: #333;
+      --accent: #ff6ec7;
+      --font: 'Segoe UI', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 16px;
+      min-height: 100vh;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      color: var(--accent);
+      margin-bottom: 32px;
+    }
+
+    select {
+      background: var(--card);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 12px 18px;
+      border-radius: 8px;
+      font-size: 16px;
+      margin-bottom: 28px;
+      width: 100%;
+      max-width: 300px;
+      appearance: none;
+    }
+
+    #output {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 30px;
+      max-width: 800px;
+      width: 100%;
+      font-size: 18px;
+      line-height: 1.8;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    option {
+      background: var(--card);
+      color: var(--text);
+    }
+
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 2rem;
+      }
+
+      #output {
+        padding: 20px;
+        font-size: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>💌 Love Letters</h1>
+
+  <select id="fileSelector">
+    <option disabled selected>Loading letters...</option>
+  </select>
+
+  <div id="output">Choose a letter to read...</div>
+
+  <script>
+    const selector = document.getElementById("fileSelector");
+    const output = document.getElementById("output");
+
+    async function loadFileList() {
+      try {
+        const res = await fetch("files.json");
+        const files = await res.json();
+
+        selector.innerHTML = '<option disabled selected>Select a letter</option>';
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+          const opt = document.createElement("option");
+          opt.value = file;
+          opt.textContent = `Letter ${i + 1}`;
+          selector.appendChild(opt);
+        }
+      } catch (e) {
+        selector.innerHTML = '<option disabled>Error loading file list</option>';
+      }
+    }
+
+    selector.addEventListener("change", async function () {
+      const file = this.value;
+      try {
+        const res = await fetch(file); // 🔥 No /Files/ now
+        if (!res.ok) throw new Error("File not found.");
+        const text = await res.text();
+        output.textContent = text;
+      } catch (e) {
+        output.textContent = "Error loading file: " + e.message;
+      }
+    });
+
+    loadFileList();
+  </script>
+</body>
+</html>
